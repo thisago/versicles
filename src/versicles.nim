@@ -12,8 +12,14 @@ func removeVerses(s: string; verses: seq[string]): string =
     result = result.replace(verse, "")
   result = result.replace(re"\([^\w\d]*\)", "").strip
 
-proc list2json(list, outJson: string): bool =
-  ## Converts a verse list into a JSON
+# proc genMd(json: string): bool =
+#   if not fileExists json:
+#     echo fmt"The JSON file '{json}' not exists"
+#     return true
+  
+
+proc parseList(list, outJson: string): bool =
+  ## Converts a commented verse list into a JSON
   result = false # no error
   if not fileExists list:
     echo fmt"The list file '{list}' not exists"
@@ -36,5 +42,14 @@ proc list2json(list, outJson: string): bool =
 when isMainModule:
   import pkg/cligen
   dispatchMulti(
-    [list2json],
+    [
+      parseList,
+      help = {
+        "list": "Input list file path",
+        "outJson": "Output JSON file path"
+      }
+    ],
+    [
+      genMd
+    ]
   )
