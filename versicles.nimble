@@ -7,7 +7,11 @@ license       = "MIT"
 srcDir        = "src"
 bin           = @["versicles"]
 
+binDir = "build"
 
 # Dependencies
 
 requires "nim >= 1.6.4"
+
+requires "cligen"
+requires "util"
