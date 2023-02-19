@@ -1,5 +1,7 @@
 # Versicles
 
+Lib and CLI tool to manipulate biblical verses!
+
 ## Examples
 
 ## parseList

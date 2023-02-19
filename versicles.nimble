@@ -2,12 +2,14 @@
 
 version       = "0.1.0"
 author        = "Thiago Navarro"
-description   = "Simple tool to use bible versicles"
+description   = "Lib and CLI tool to manipulate biblical verses!"
 license       = "MIT"
 srcDir        = "src"
 bin           = @["versicles"]
 
 binDir = "build"
+installExt = @["nim"]
+
 
 # Dependencies
 
