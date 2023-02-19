@@ -1,0 +1,5 @@
+# Versicles
+
+## License
+
+MIT
