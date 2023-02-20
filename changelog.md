@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 0.2.0 (2023/02/20)
+
+- Added `toMd` command
+
+---
+
 ## Version 0.1.0 (2023/02/19)
 
 - Added `list2json` command

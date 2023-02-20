@@ -3,9 +3,10 @@ from std/json import `$`, `%*`, `%`, `add`, newJArray, parseJson, items, `[]`,
 from std/os import fileExists
 from std/strformat import fmt
 from std/sequtils import toSeq, mapIt
-from std/strutils import split, strip, AllChars, Letters, Digits, replace, join,
-                          parseInt, toLowerAscii, toUpperAscii
+from std/strutils import split, strip, Whitespace, replace, join, parseInt,
+                          toLowerAscii, toUpperAscii
 import std/nre
+# import std/unicode
 
 from pkg/util import removeAccent, getAllFirstLevelParenthesis
 
@@ -14,24 +15,32 @@ type
   Verse* = tuple
     book: string
     chapter, verse: int
+    translation: string
 
 func parseVerse*(verse: string): Verse =
   ## Parses the verse reference to a `Verse` tuple
-  var parts = verse.find(re"([^:]+) ([0-9]{1,3}):([0-9]{1,3})").get.captures
+  var parts = verse.find(re"([^:]+) ([0-9]{1,3}):([0-9]{1,3}) ?([A-z]{2}_[A-z]+)?").get.captures
   result.book = parts[0].toLowerAscii
   result.book[0] = result.book[0].toUpperAscii
   result.chapter = parts[1].parseInt
   result.verse = parts[2].parseInt
+  try:
+    result.translation = parts[3]
+  except IndexDefect:
+    discard
+    
 
 func `$`*(v: Verse): string =
   fmt"{v.book} {v.chapter}:{v.verse}"
 
-func inOzzuuBible*(verse: string; translation = "pt_yah"): string =
+func inOzzuuBible*(v: Verse; defaultTranslation = "pt_yah"): string =
   ## Returns a URL to see the verse in Ozzuu Bible
-  let v = verse.parseVerse
-  fmt"https://bible.ozzuu.com/{translation}/{v.book}"
+  var translation = defaultTranslation
+  if v.translation.len > 0:
+    translation = v.translation
+  fmt"https://bible.ozzuu.com/{translation}/{v.book}/{v.chapter}#{v.verse}"
 
-proc genMd(jsonFile: string; outMd = ""): bool =
+proc genMd(jsonFile: string; outMd = ""; defaultTranslation = "pt_yah"): bool =
   ## Generates a markdown with JSON data (parsed with `parseList`)
   result = false # no error
   if not fileExists jsonFile:
@@ -51,9 +60,11 @@ All glory to **יהוה**!
     for item in node:
       var verses: seq[string]
       for v in item["verses"]:
-        let verse = v.getStr
-        verses.add fmt"[{verse}]({verse.inOzzuuBible})"
-      md.add "#### " & verses.join ", " & "\l"
+        let
+          verse = v.getStr.parseVerse
+          verseUrl = verse.inOzzuuBible defaultTranslation
+        verses.add fmt"[{verse}]({verseUrl})"
+      md.add "#### " & verses.join(", ") & "\l"
       md.add item["textNoVerses"].getStr & "\l"
     if outMd.len > 0:
       outMd.writeFile md
@@ -70,8 +81,6 @@ func removeVerses(s: string; verses: seq[string]): string =
     result = result.replace(verse, "")
   result = result.replace(re"\([^\w\d]*\)", "").strip
 
-
-
 proc parseList(list, outJson: string): bool =
   ## Converts a commented verse list into a JSON
   result = false # no error
@@ -84,8 +93,8 @@ proc parseList(list, outJson: string): bool =
     if line.len == 0: continue
     var verses: seq[string]
     for parenthesis in line.getAllFirstLevelParenthesis:
-      for verse in parenthesis.strip.findAll(re"[^:]+ [0-9]{1,3}:[0-9]{1,3}"):
-        verses.add verse.strip(chars = AllChars - Letters - Digits - {':', '(', ')'})
+      for verse in parenthesis.strip.findAll(re"[^:]+ [0-9]{1,3}:[0-9]{1,3} ?([A-z]{2}_[A-z]+)?"):
+        verses.add verse.strip.strip(chars = Whitespace + {','}) #.strip(chars = AllChars - Letters - Digits - {':', '(', ')', 'À'..'ÿ'})
     node.add %*{
       "text": %line,
       "textNoVerses": %line.removeVerses verses,
@@ -104,6 +113,11 @@ when isMainModule:
       }
     ],
     [
-      genMd
+      genMd,
+      help = {
+        "jsonFile": "Input JSON file path",
+        "outMd": "Output Markdown file path",
+        "defaultTranslation": "Default bible translation to use in Ozzuu Bible URLs"
+      }
     ]
   )
