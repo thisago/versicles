@@ -91,6 +91,10 @@ versicles genMd -j in.json -d en_wyc2014
 Kayin rages against Hevel and his face shows hatred.
 ```
 
+## Todo
+
+- [ ] Optional hebrew names for books
+
 ## License
 
 MIT
