@@ -2,9 +2,8 @@ from std/json import `$`, `%*`, `%`, `add`, newJArray, parseJson, items, `[]`,
                       `getStr`, JsonParsingError
 from std/os import fileExists
 from std/strformat import fmt
-from std/sequtils import toSeq, mapIt
 from std/strutils import split, strip, Whitespace, replace, join, parseInt,
-                          toLowerAscii, toUpperAscii
+                          toLowerAscii, toUpperAscii, contains
 import std/nre
 # import std/unicode
 
@@ -14,16 +13,26 @@ from pkg/util import removeAccent, getAllFirstLevelParenthesis
 type
   Verse* = tuple
     book: string
-    chapter, verse: int
+    chapter: int
+    verses: seq[int]
     translation: string
 
 func parseVerse*(verse: string): Verse =
   ## Parses the verse reference to a `Verse` tuple
-  var parts = verse.find(re"([^:]+) ([0-9]{1,3}):([0-9]{1,3}) ?([A-z]{2}_[A-z]+)?").get.captures
+  var parts = verse.find(re"([^:]+) ([0-9]{1,3}):([0-9,\- ]+) ?([A-z]{2}_[A-z]+)?").get.captures
   result.book = parts[0].toLowerAscii
   result.book[0] = result.book[0].toUpperAscii
   result.chapter = parts[1].parseInt
-  result.verse = parts[2].parseInt
+  if "-" in parts[2]:
+    let
+      parts = parts[2].split "-"
+      start = parts[0].parseInt
+      to = parts[1].parseInt
+    for i in start..to:
+      result.verses.add i
+  else:
+    for verse in parts[2].replace(", ", ",").split ",":
+      result.verses.add verse.parseInt
   try:
     result.translation = parts[3]
   except IndexDefect:
@@ -31,14 +40,15 @@ func parseVerse*(verse: string): Verse =
     
 
 func `$`*(v: Verse): string =
-  fmt"{v.book} {v.chapter}:{v.verse}"
+  let verses = v.verses.join ","
+  fmt"{v.book} {v.chapter}:{verses}"
 
 func inOzzuuBible*(v: Verse; defaultTranslation = "pt_yah"): string =
   ## Returns a URL to see the verse in Ozzuu Bible
   var translation = defaultTranslation
   if v.translation.len > 0:
     translation = v.translation
-  fmt"https://bible.ozzuu.com/{translation}/{v.book}/{v.chapter}#{v.verse}"
+  fmt"https://bible.ozzuu.com/{translation}/{v.book}/{v.chapter}#{v.verses[0]}"
 
 proc genMd(jsonFile: string; outMd = ""; defaultTranslation = "pt_yah"): bool =
   ## Generates a markdown with JSON data (parsed with `parseList`)
@@ -93,13 +103,14 @@ proc parseList(list, outJson: string): bool =
     if line.len == 0: continue
     var verses: seq[string]
     for parenthesis in line.getAllFirstLevelParenthesis:
-      for verse in parenthesis.strip.findAll(re"[^:]+ [0-9]{1,3}:[0-9]{1,3} ?([A-z]{2}_[A-z]+)?"):
+      for verse in parenthesis.strip.findAll(re"[^:]+ [0-9]{1,3}:[0-9,\- ]+ ?([A-z]{2}_[A-z]+)?"):
         verses.add verse.strip.strip(chars = Whitespace + {','}) #.strip(chars = AllChars - Letters - Digits - {':', '(', ')', 'À'..'ÿ'})
-    node.add %*{
-      "text": %line,
-      "textNoVerses": %line.removeVerses verses,
-      "verses": %verses,
-    }
+    if verses.len > 0:
+      node.add %*{
+        "text": %line,
+        "textNoVerses": %line.removeVerses verses,
+        "verses": %verses,
+      }
   outJson.writeFile $node
 
 when isMainModule:
