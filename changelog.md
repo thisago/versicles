@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 0.4.0 (2023/02/21)
+
+- Added an option to keep the verses references
+
+---
+
 ## Version 0.3.0 (2023/02/20)
 
 - Added optional hebrew transliteration names

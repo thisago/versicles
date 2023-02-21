@@ -56,7 +56,13 @@ func inOzzuuBible*(v: Verse; defaultTranslation = "pt_yah"): string =
     translation = v.translation
   fmt"https://bible.ozzuu.com/{translation}/{v.book}/{v.chapter}#{v.verses[0]}"
 
-proc genMd(jsonFile: string; outMd = ""; defaultTranslation = "pt_yah"; hebrewTransliterations = true): bool =
+proc genMd(
+  jsonFile: string;
+  outMd = "";
+  defaultTranslation = "pt_yah";
+  hebrewTransliterations = true;
+  keepInlineVersesReferences = false
+): bool =
   ## Generates a markdown with JSON data (parsed with `parseList`)
   result = false # no error
   if not fileExists jsonFile:
@@ -81,7 +87,11 @@ All glory to **יהוה**!
           verseUrl = verse.inOzzuuBible defaultTranslation
         verses.add fmt"[{`$`(verse, hebrewTransliterations)}]({verseUrl})"
       md.add "#### " & verses.join(", ") & "\l"
-      md.add item["textNoVerses"].getStr & "\l"
+      if keepInlineVersesReferences:
+        md.add item["text"].getStr & "\l"
+      else:
+        md.add item["textNoVerses"].getStr & "\l"
+      md.add "\l"
     if outMd.len > 0:
       outMd.writeFile md
     else:
