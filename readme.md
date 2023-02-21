@@ -93,7 +93,8 @@ Kayin rages against Hevel and his face shows hatred.
 
 ## Todo
 
-- [ ] Optional hebrew names for books
+- [x] Optional hebrew names for books
+- [ ] Create a website to use this tool in browser
 
 ## License
 

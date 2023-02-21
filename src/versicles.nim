@@ -8,7 +8,8 @@ import std/nre
 # import std/unicode
 
 from pkg/util import removeAccent, getAllFirstLevelParenthesis
-
+from pkg/bibleTools import identifyBibleBookAllLangs, en, pt,
+                            hebrewTransliteration
 
 type
   Verse* = tuple
@@ -37,11 +38,16 @@ func parseVerse*(verse: string): Verse =
     result.translation = parts[3]
   except IndexDefect:
     discard
-    
 
-func `$`*(v: Verse): string =
+
+func `$`*(v: Verse; hebrewTransliteration = false): string =
   let verses = v.verses.join ","
-  fmt"{v.book} {v.chapter}:{verses}"
+  var bookName = v.book
+  if hebrewTransliteration:
+    let transliterated = bookName.identifyBibleBookAllLangs.hebrewTransliteration
+    if transliterated.len > 0:
+      bookName = fmt"{transliterated} ({v.book})"
+  result = fmt"{bookName} {v.chapter}:{verses}"
 
 func inOzzuuBible*(v: Verse; defaultTranslation = "pt_yah"): string =
   ## Returns a URL to see the verse in Ozzuu Bible
@@ -50,7 +56,7 @@ func inOzzuuBible*(v: Verse; defaultTranslation = "pt_yah"): string =
     translation = v.translation
   fmt"https://bible.ozzuu.com/{translation}/{v.book}/{v.chapter}#{v.verses[0]}"
 
-proc genMd(jsonFile: string; outMd = ""; defaultTranslation = "pt_yah"): bool =
+proc genMd(jsonFile: string; outMd = ""; defaultTranslation = "pt_yah"; hebrewTransliterations = true): bool =
   ## Generates a markdown with JSON data (parsed with `parseList`)
   result = false # no error
   if not fileExists jsonFile:
@@ -73,7 +79,7 @@ All glory to **יהוה**!
         let
           verse = v.getStr.parseVerse
           verseUrl = verse.inOzzuuBible defaultTranslation
-        verses.add fmt"[{verse}]({verseUrl})"
+        verses.add fmt"[{`$`(verse, hebrewTransliterations)}]({verseUrl})"
       md.add "#### " & verses.join(", ") & "\l"
       md.add item["textNoVerses"].getStr & "\l"
     if outMd.len > 0:
@@ -128,7 +134,11 @@ when isMainModule:
       help = {
         "jsonFile": "Input JSON file path",
         "outMd": "Output Markdown file path",
-        "defaultTranslation": "Default bible translation to use in Ozzuu Bible URLs"
+        "defaultTranslation": "Default bible translation to use in Ozzuu Bible URLs",
+        "hebrewTransliterations": "Disables the addiction of hebrew transliterated names"
+      },
+      short = {
+        "hebrewTransliterations": 't'
       }
     ]
   )

@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 0.3.0 (2023/02/20)
+
+- Added optional hebrew transliteration names
+
+---
+
 ## Version 0.2.0 (2023/02/20)
 
 - Added `toMd` command
