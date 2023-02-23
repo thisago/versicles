@@ -9,59 +9,16 @@ import std/nre
 
 from pkg/util import removeAccent, getAllFirstLevelParenthesis
 from pkg/bibleTools import identifyBibleBookAllLangs, en, pt,
-                            hebrewTransliteration
-
-type
-  Verse* = tuple
-    book: string
-    chapter: int
-    verses: seq[int]
-    translation: string
-
-func parseVerse*(verse: string): Verse =
-  ## Parses the verse reference to a `Verse` tuple
-  var parts = verse.find(re"([^:]+) ([0-9]{1,3}):([0-9,\- ]+) ?([A-z]{2}_[A-z]+)?").get.captures
-  result.book = parts[0].toLowerAscii
-  result.book[0] = result.book[0].toUpperAscii
-  result.chapter = parts[1].parseInt
-  if "-" in parts[2]:
-    let
-      parts = parts[2].split "-"
-      start = parts[0].parseInt
-      to = parts[1].parseInt
-    for i in start..to:
-      result.verses.add i
-  else:
-    for verse in parts[2].replace(", ", ",").split ",":
-      result.verses.add verse.parseInt
-  try:
-    result.translation = parts[3]
-  except IndexDefect:
-    discard
-
-
-func `$`*(v: Verse; hebrewTransliteration = false): string =
-  let verses = v.verses.join ","
-  var bookName = v.book
-  if hebrewTransliteration:
-    let transliterated = bookName.identifyBibleBookAllLangs.hebrewTransliteration
-    if transliterated.len > 0:
-      bookName = fmt"{transliterated} ({v.book})"
-  result = fmt"{bookName} {v.chapter}:{verses}"
-
-func inOzzuuBible*(v: Verse; defaultTranslation = "pt_yah"): string =
-  ## Returns a URL to see the verse in Ozzuu Bible
-  var translation = defaultTranslation
-  if v.translation.len > 0:
-    translation = v.translation
-  fmt"https://bible.ozzuu.com/{translation}/{v.book}/{v.chapter}#{v.verses[0]}"
+                            hebrewTransliteration, parseBibleVerse,
+                            inOzzuuBible, `$`
 
 proc genMd(
   jsonFile: string;
   outMd = "";
   defaultTranslation = "pt_yah";
   hebrewTransliterations = true;
-  keepInlineVersesReferences = false
+  keepInlineVersesReferences = false;
+  addVerseTranslation = false
 ): bool =
   ## Generates a markdown with JSON data (parsed with `parseList`)
   result = false # no error
@@ -82,15 +39,16 @@ All glory to **יהוה**!
     for item in node:
       var verses: seq[string]
       for v in item["verses"]:
-        let
-          verse = v.getStr.parseVerse
-          verseUrl = verse.inOzzuuBible defaultTranslation
-        verses.add fmt"[{`$`(verse, hebrewTransliterations)}]({verseUrl})"
+        var verse = v.getStr.parseBibleVerse
+        let verseUrl = verse.inOzzuuBible defaultTranslation
+        if verse.translation.len == 0:
+          verse.translation = defaultTranslation
+        verses.add fmt"[{`$`(verse, hebrewTransliterations, addVerseTranslation)}]({verseUrl})"
       md.add "#### " & verses.join(", ") & "\l"
       if keepInlineVersesReferences:
-        md.add item["text"].getStr & "\l"
+        md.add item["text"].getStr
       else:
-        md.add item["textNoVerses"].getStr & "\l"
+        md.add item["textNoVerses"].getStr
       md.add "\l"
     if outMd.len > 0:
       outMd.writeFile md

@@ -1,5 +1,12 @@
 # Changelog
 
+## Version 0.5.0 (2023/02/23)
+
+- Using bibleTools verse tools
+- Added option to enable translation display
+
+---
+
 ## Version 0.4.0 (2023/02/21)
 
 - Added an option to keep the verses references
