@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 0.6.0 (2023/02/25)
+
+- Now the common book name is translated
+
+---
+
 ## Version 0.5.1 (2023/02/25)
 
 - Fixed verse removing regex
