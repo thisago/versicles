@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 0.5.1 (2023/02/25)
+
+- Fixed verse removing regex
+
+---
+
 ## Version 0.5.0 (2023/02/23)
 
 - Using bibleTools verse tools

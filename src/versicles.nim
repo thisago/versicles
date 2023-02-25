@@ -10,7 +10,7 @@ import std/nre
 from pkg/util import removeAccent, getAllFirstLevelParenthesis
 from pkg/bibleTools import identifyBibleBookAllLangs, en, pt,
                             hebrewTransliteration, parseBibleVerse,
-                            inOzzuuBible, `$`
+                            inOzzuuBible, `$`, verseRegex
 
 proc genMd(
   jsonFile: string;
@@ -77,7 +77,7 @@ proc parseList(list, outJson: string): bool =
     if line.len == 0: continue
     var verses: seq[string]
     for parenthesis in line.getAllFirstLevelParenthesis:
-      for verse in parenthesis.strip.findAll(re"[^:]+ [0-9]{1,3}:[0-9,\- ]+ ?([A-z]{2}_[A-z]+)?"):
+      for verse in parenthesis.strip.findAll(verseRegex):
         verses.add verse.strip.strip(chars = Whitespace + {','}) #.strip(chars = AllChars - Letters - Digits - {':', '(', ')', 'À'..'ÿ'})
     if verses.len > 0:
       node.add %*{
