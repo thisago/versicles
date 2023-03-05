@@ -10,13 +10,14 @@ Converts a commented verse list into a JSON
 
 ```
 Usage:
-  parseList [REQUIRED,optional-params]
+  parseList [REQUIRED,optional-params] 
 Converts a commented verse list into a JSON
 Options:
-  -h, --help                         print this cligen-erated help
-  --help-syntax                      advanced: prepend,plurals,..
-  -l=, --list=     string  REQUIRED  Input list file path
-  -o=, --outJson=  string  REQUIRED  Output JSON file path
+  -h, --help                            print this cligen-erated help
+  --help-syntax                         advanced: prepend,plurals,..
+  -l=, --list=        string  REQUIRED  Input list file path
+  -o=, --outJson=     string  REQUIRED  Output JSON file path
+  -s, --saveAllLines  bool    false     Enable all lines saving to JSON. The default is to ignore lines that haven't a verse reference
 ```
 
 ### Example
@@ -53,14 +54,18 @@ Generates a markdown with JSON data (parsed with `parseList`)
 
 ```text
 Usage:
-  genMd [REQUIRED,optional-params]
+  genMd [REQUIRED,optional-params] 
 Generates a markdown with JSON data (parsed with `parseList`)
 Options:
-  -h, --help                                    print this cligen-erated help
-  --help-syntax                                 advanced: prepend,plurals,..
-  -j=, --jsonFile=            string  REQUIRED  Input JSON file path
-  -o=, --outMd=               string  ""        Output Markdown file path
-  -d=, --defaultTranslation=  string  "pt_yah"  Default bible translation to use in Ozzuu Bible URLs
+  -h, --help                                          print this cligen-erated help
+  --help-syntax                                       advanced: prepend,plurals,..
+  -j=, --jsonFile=                  string  REQUIRED  Input JSON file path
+  -o=, --outMd=                     string  ""        Output Markdown file path
+  -d=, --defaultTranslation=        string  "pt_yah"  Default bible translation to use in Ozzuu Bible URLs
+  -t, --hebrewTransliterations      bool    true      Disables the addiction of hebrew transliterated names
+  -k, --keepInlineVersesReferences  bool    false     set keepInlineVersesReferences
+  -a, --addVerseTranslation         bool    false     set addVerseTranslation
+  -l=, --toLang=                    string  ""        Set the language to translate
 ```
 
 ### Example
@@ -95,6 +100,7 @@ Kayin rages against Hevel and his face shows hatred.
 
 - [x] Optional hebrew names for books
 - [ ] Create a website to use this tool in browser
+- [ ] Change `genMd` to `genHtml`
 
 ## License
 

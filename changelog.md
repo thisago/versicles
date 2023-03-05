@@ -1,5 +1,12 @@
 # Changelog
 
+## Version 0.7.0 (2023/03/05)
+
+- Allowed any char split the verses (even a space if the next book not start with a number)
+- Added option to add lines that haven't verse reference in `parseList` command
+
+---
+
 ## Version 0.6.0 (2023/02/25)
 
 - Now the common book name is translated

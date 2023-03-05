@@ -2,7 +2,8 @@ from std/json import `$`, `%*`, `%`, `add`, newJArray, parseJson, items, `[]`,
                       `getStr`, JsonParsingError
 from std/os import fileExists
 from std/strformat import fmt
-from std/strutils import join, toLowerAscii, replace, strip, split, Whitespace
+from std/strutils import join, toLowerAscii, replace, strip, split, AllChars,
+                          Letters, Digits
 import std/nre
 # import std/unicode
 
@@ -49,7 +50,9 @@ All glory to **יהוה**!
         if verse.translation.len == 0:
           verse.translation = defaultTranslation
         verses.add fmt"[{`$`(verse, hebrewTransliterations, addVerseTranslation, translateToLang)}]({verseUrl})"
-      md.add "#### " & verses.join(", ") & "\l"
+      if verses.len > 0:
+        md.add "#### " & verses.join(", ")
+      md.add "\l"
       if keepInlineVersesReferences:
         md.add item["text"].getStr
       else:
@@ -70,7 +73,7 @@ func removeVerses(s: string; verses: seq[string]): string =
     result = result.replace(verse, "")
   result = result.replace(re"\([^\w\d]*\)", "").strip
 
-proc parseList(list, outJson: string): bool =
+proc parseList(list, outJson: string; saveAllLines = false): bool =
   ## Converts a commented verse list into a JSON
   result = false # no error
   if not fileExists list:
@@ -82,9 +85,11 @@ proc parseList(list, outJson: string): bool =
     if line.len == 0: continue
     var verses: seq[string]
     for parenthesis in line.getAllFirstLevelParenthesis:
-      for verse in parenthesis.strip.findAll(verseRegex):
-        verses.add verse.strip.strip(chars = Whitespace + {','}) #.strip(chars = AllChars - Letters - Digits - {':', '(', ')', 'À'..'ÿ'})
-    if verses.len > 0:
+      let verseRegexa = re"([^:]+) ([0-9]{1,3})(:[0-9,\- ]+)?[^A-z]([A-z]{2}_[A-z0-9]+)?"
+      
+      for verse in parenthesis.strip.findAll(verseRegexa):
+        verses.add verse.strip(chars = AllChars - Letters - Digits) #.strip(chars = AllChars - Letters - Digits - {':', '(', ')', 'À'..'ÿ'})
+    if verses.len > 0 or saveAllLines:
       node.add %*{
         "text": %line,
         "textNoVerses": %line.removeVerses verses,
@@ -99,7 +104,8 @@ when isMainModule:
       parseList,
       help = {
         "list": "Input list file path",
-        "outJson": "Output JSON file path"
+        "outJson": "Output JSON file path",
+        "saveAllLines": "Enable all lines saving to JSON. The default is to ignore lines that haven't a verse reference"
       }
     ],
     [
