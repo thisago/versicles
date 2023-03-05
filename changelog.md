@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 0.7.1 (2023/03/05)
+
+- Removed test verse regex
+
+---
+
 ## Version 0.7.0 (2023/03/05)
 
 - Allowed any char split the verses (even a space if the next book not start with a number)

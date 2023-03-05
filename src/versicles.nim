@@ -85,9 +85,7 @@ proc parseList(list, outJson: string; saveAllLines = false): bool =
     if line.len == 0: continue
     var verses: seq[string]
     for parenthesis in line.getAllFirstLevelParenthesis:
-      let verseRegexa = re"([^:]+) ([0-9]{1,3})(:[0-9,\- ]+)?[^A-z]([A-z]{2}_[A-z0-9]+)?"
-      
-      for verse in parenthesis.strip.findAll(verseRegexa):
+      for verse in parenthesis.strip.findAll(verseRegex):
         verses.add verse.strip(chars = AllChars - Letters - Digits) #.strip(chars = AllChars - Letters - Digits - {':', '(', ')', 'À'..'ÿ'})
     if verses.len > 0 or saveAllLines:
       node.add %*{
