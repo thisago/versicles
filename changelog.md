@@ -2,7 +2,7 @@
 
 ## Version 0.7.3 (2023/03/10)
 
-- Fixed verse strip
+- Fixed verse strip (again)
 
 ---
 
