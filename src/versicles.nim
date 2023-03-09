@@ -88,7 +88,7 @@ proc parseList(list, outJson: string; saveAllLines = false): bool =
     var verses: seq[string]
     for parenthesis in line.getAllFirstLevelParenthesis:
       for verse in parenthesis.strip.findAll(verseRegex):
-        verses.add verse.strip(NonExtendedAlphanumeric, [':', ',', '-', ' ']).
+        verses.add verse.strip(NonExtendedAlphanumeric, [':', ',', '-', ' ', '_']).
           strip(chars = AllChars - Letters - Digits)
     if verses.len > 0 or saveAllLines:
       node.add %*{
