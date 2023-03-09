@@ -2,12 +2,14 @@ from std/json import `$`, `%*`, `%`, `add`, newJArray, parseJson, items, `[]`,
                       `getStr`, JsonParsingError
 from std/os import fileExists
 from std/strformat import fmt
+from std/sequtils import toSeq
 from std/strutils import join, toLowerAscii, replace, strip, split, AllChars,
                           Letters, Digits
 import std/nre
 # import std/unicode
 
-from pkg/util import removeAccent, getAllFirstLevelParenthesis
+from pkg/util/forStr import removeAccent, getAllFirstLevelParenthesis, strip,
+                              NonExtendedAlphanumeric
 from pkg/bibleTools import identifyBibleBookAllLangs, en, pt,
                             hebrewTransliteration, parseBibleVerse,
                             inOzzuuBible, `$`, verseRegex, ALEnglish,
@@ -66,6 +68,7 @@ All glory to **יהוה**!
     echo getCurrentExceptionMsg()
     return true
 
+from std/unicode import nil
 
 func removeVerses(s: string; verses: seq[string]): string =
   result = s
@@ -86,7 +89,7 @@ proc parseList(list, outJson: string; saveAllLines = false): bool =
     var verses: seq[string]
     for parenthesis in line.getAllFirstLevelParenthesis:
       for verse in parenthesis.strip.findAll(verseRegex):
-        verses.add verse.strip(chars = AllChars - Letters - Digits) #.strip(chars = AllChars - Letters - Digits - {':', '(', ')', 'À'..'ÿ'})
+        verses.add verse.strip(NonExtendedAlphanumeric, toSeq(AllChars - Letters - Digits))
     if verses.len > 0 or saveAllLines:
       node.add %*{
         "text": %line,

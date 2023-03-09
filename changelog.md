@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 0.7.2 (2023/03/09)
+
+- Fixed unexpected accent strip
+
+---
+
 ## Version 0.7.1 (2023/03/05)
 
 - Removed test verse regex
