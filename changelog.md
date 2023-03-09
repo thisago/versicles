@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 0.7.3 (2023/03/10)
+
+- Fixed verse strip
+
+---
+
 ## Version 0.7.2 (2023/03/09)
 
 - Fixed unexpected accent strip
