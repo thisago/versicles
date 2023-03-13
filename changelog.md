@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 0.7.4 (2023/03/13)
+
+- Fixed verse strip (and again xD)
+
+---
+
 ## Version 0.7.3 (2023/03/10)
 
 - Fixed verse strip (again)
