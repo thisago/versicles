@@ -1,6 +1,6 @@
 # Package
 
-version       = "0.7.4"
+version       = "0.7.5"
 author        = "Thiago Navarro"
 description   = "Lib and CLI tool to manipulate biblical verses!"
 license       = "MIT"
@@ -17,4 +17,4 @@ requires "nim >= 1.6.4"
 
 requires "cligen"
 requires "util"
-requires "bibleTools == 0.10.0"
+requires "bibleTools"

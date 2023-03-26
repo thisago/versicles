@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 0.7.5 (2023/03/26)
+
+- Updated to bibleTools@1.0.4
+
+---
+
 ## Version 0.7.4 (2023/03/13)
 
 - Fixed verse strip (and again xD)

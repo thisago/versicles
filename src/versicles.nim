@@ -9,10 +9,7 @@ import std/nre
 
 from pkg/util/forStr import removeAccent, getAllFirstLevelParenthesis, strip,
                               NonExtendedAlphanumeric
-from pkg/bibleTools import identifyBibleBookAllLangs, en, pt,
-                            hebrewTransliteration, parseBibleVerse,
-                            inOzzuuBible, `$`, verseRegex, ALEnglish,
-                            ALPortuguese, ALDefault
+from pkg/bibleTools import parseBibleVerse, inOzzuuBible, `$`, verseRegex
 
 proc genMd(
   jsonFile: string;
@@ -21,7 +18,6 @@ proc genMd(
   hebrewTransliterations = true;
   keepInlineVersesReferences = false;
   addVerseTranslation = false;
-  toLang = ""
 ): bool =
   ## Generates a markdown with JSON data (parsed with `parseList`)
   result = false # no error
@@ -39,10 +35,6 @@ All glory to **יהוה**!
 
 ## Content
 """ 
-    let translateToLang = case toLang.toLowerAscii:
-                  of "en", "english": ALEnglish
-                  of "pt", "portuguese": ALPortuguese
-                  else: ALDefault
     for item in node:
       var verses: seq[string]
       for v in item["verses"]:
@@ -50,7 +42,7 @@ All glory to **יהוה**!
         let verseUrl = verse.inOzzuuBible defaultTranslation
         if verse.translation.len == 0:
           verse.translation = defaultTranslation
-        verses.add fmt"[{`$`(verse, hebrewTransliterations, addVerseTranslation, translateToLang)}]({verseUrl})"
+        verses.add fmt"[{`$`(verse, hebrewTransliterations, addVerseTranslation, shortBook = false)}]({verseUrl})"
       if verses.len > 0:
         md.add "#### " & verses.join(", ")
       md.add "\l"
@@ -116,11 +108,9 @@ when isMainModule:
         "outMd": "Output Markdown file path",
         "defaultTranslation": "Default bible translation to use in Ozzuu Bible URLs",
         "hebrewTransliterations": "Disables the addiction of hebrew transliterated names",
-        "toLang": "Set the language to translate",
       },
       short = {
         "hebrewTransliterations": 't',
-        "toLang": 'l',
       }
     ]
   )
