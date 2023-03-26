@@ -17,4 +17,4 @@ requires "nim >= 1.6.4"
 
 requires "cligen"
 requires "util"
-requires "bibleTools"
+requires "bibleTools == 0.10.0"
