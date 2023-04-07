@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 0.8.1 (2023/04/07)
+
+- Updated bibleTools@1.2.1
+
 ## Version 0.8.0 (2023/04/07)
 
 - Updated util@2.0.0

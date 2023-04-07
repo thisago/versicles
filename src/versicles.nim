@@ -8,7 +8,7 @@ import std/nre
 
 from pkg/util/forStr import removeAccent, getEnclosedText, clean,
                               NonExtendedAlphanumeric
-from pkg/bibleTools import parseBibleVerse, inOzzuuBible, `$`, verseRegex
+from pkg/bibleTools import parseBibleVerse, inOzzuuBible, `$`, parseBibleVerses
 
 proc genMd(
   jsonFile: string;
@@ -78,19 +78,21 @@ proc parseList(list, outJson: string; saveAllLines = false): bool =
   for l in list.readFile.split "\n":
     let line = l.strip 
     if line.len == 0: continue
-    var verses: seq[string]
+    var
+      verses: seq[string]
+      rawVerses: seq[string]
     let enclosed = line.getEnclosedText(['(', ')'])
     if enclosed.error:
       echo fmt"Error, expected closing '(' at line {i + 1}"
       return true
     for text in enclosed.texts:
-      for verse in text.strip.findAll(verseRegex):
-        verses.add verse.clean(NonExtendedAlphanumeric, [':', ',', '-', ' ', '_']).
-          strip(chars = {':', ',', '-', ' ', '_'})
+      for verse in text.strip.parseBibleVerses:
+        verses.add $verse.parsed
+        rawVerses.add verse.raw
     if verses.len > 0 or saveAllLines:
       node.add %*{
         "text": %line,
-        "textNoVerses": %line.removeVerses verses,
+        "textNoVerses": %line.removeVerses rawVerses,
         "verses": %verses,
       }
     inc i
