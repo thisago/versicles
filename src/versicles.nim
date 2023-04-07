@@ -5,9 +5,8 @@ from std/strformat import fmt
 from std/strutils import join, toLowerAscii, replace, strip, split, AllChars,
                           Letters, Digits
 import std/nre
-# import std/unicode
 
-from pkg/util/forStr import removeAccent, getAllFirstLevelParenthesis, strip,
+from pkg/util/forStr import removeAccent, getEnclosedText, clean,
                               NonExtendedAlphanumeric
 from pkg/bibleTools import parseBibleVerse, inOzzuuBible, `$`, verseRegex
 
@@ -73,14 +72,20 @@ proc parseList(list, outJson: string; saveAllLines = false): bool =
   if not fileExists list:
     echo fmt"The list file '{list}' not exists"
     return true
-  var node = newJArray()
+  var
+    node = newJArray()
+    i = 0
   for l in list.readFile.split "\n":
     let line = l.strip 
     if line.len == 0: continue
     var verses: seq[string]
-    for parenthesis in line.getAllFirstLevelParenthesis:
-      for verse in parenthesis.strip.findAll(verseRegex):
-        verses.add verse.strip(NonExtendedAlphanumeric, [':', ',', '-', ' ', '_']).
+    let enclosed = line.getEnclosedText(['(', ')'])
+    if enclosed.error:
+      echo fmt"Error, expected closing '(' at line {i + 1}"
+      return true
+    for text in enclosed.texts:
+      for verse in text.strip.findAll(verseRegex):
+        verses.add verse.clean(NonExtendedAlphanumeric, [':', ',', '-', ' ', '_']).
           strip(chars = {':', ',', '-', ' ', '_'})
     if verses.len > 0 or saveAllLines:
       node.add %*{
@@ -88,6 +93,7 @@ proc parseList(list, outJson: string; saveAllLines = false): bool =
         "textNoVerses": %line.removeVerses verses,
         "verses": %verses,
       }
+    inc i
   outJson.writeFile $node
 
 when isMainModule:
