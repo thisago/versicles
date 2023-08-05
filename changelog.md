@@ -3,6 +3,7 @@
 ## Version 0.9.0 (2023/08/05)
 
 - Added optional cross reference (adds in end of url replaces `$book`, `$chapter`, `$verse`)
+- Skip crossrefs for bible ref that doesn't have a verse
 
 ## Version 0.8.1 (2023/04/07)
 

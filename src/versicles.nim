@@ -47,7 +47,7 @@ All glory to **יהוה**!
         if verse.translation.len == 0:
           verse.translation = defaultTranslation
         verseText = fmt"[{`$`(verse, hebrewTransliterations, addVerseTranslation, shortBook = false)}]({verseUrl})"
-        if crossRefsUrl.len > 0:
+        if crossRefsUrl.len > 0 and verse.verses.len > 0:
           let crossRefUrl = crossRefsUrl % [
             "book", verse.book.book.enAbbr,
             "chapter", $verse.chapter,
