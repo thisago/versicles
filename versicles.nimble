@@ -1,6 +1,6 @@
 # Package
 
-version       = "0.8.1"
+version       = "0.9.0"
 author        = "Thiago Navarro"
 description   = "Lib and CLI tool to manipulate biblical verses!"
 license       = "MIT"

@@ -3,12 +3,13 @@ from std/json import `$`, `%*`, `%`, `add`, newJArray, parseJson, items, `[]`,
 from std/os import fileExists
 from std/strformat import fmt
 from std/strutils import join, toLowerAscii, replace, strip, split, AllChars,
-                          Letters, Digits
+                          Letters, Digits, `%`
 import std/nre
 
 from pkg/util/forStr import removeAccent, getEnclosedText, clean,
                               NonExtendedAlphanumeric
-from pkg/bibleTools import parseBibleVerse, inOzzuuBible, `$`, parseBibleVerses
+from pkg/bibleTools import parseBibleVerse, inOzzuuBible, `$`, parseBibleVerses,
+                            enAbbr
 
 proc genMd(
   jsonFile: string;
@@ -17,6 +18,8 @@ proc genMd(
   hebrewTransliterations = true;
   keepInlineVersesReferences = false;
   addVerseTranslation = false;
+  crossRefsUrl = "";
+  crossRefIcon = "⤭";
 ): bool =
   ## Generates a markdown with JSON data (parsed with `parseList`)
   result = false # no error
@@ -37,11 +40,21 @@ All glory to **יהוה**!
     for item in node:
       var verses: seq[string]
       for v in item["verses"]:
-        var verse = v.getStr.parseBibleVerse
+        var
+          verse = v.getStr.parseBibleVerse
+          verseText = ""
         let verseUrl = verse.inOzzuuBible defaultTranslation
         if verse.translation.len == 0:
           verse.translation = defaultTranslation
-        verses.add fmt"[{`$`(verse, hebrewTransliterations, addVerseTranslation, shortBook = false)}]({verseUrl})"
+        verseText = fmt"[{`$`(verse, hebrewTransliterations, addVerseTranslation, shortBook = false)}]({verseUrl})"
+        if crossRefsUrl.len > 0:
+          let crossRefUrl = crossRefsUrl % [
+            "book", verse.book.book.enAbbr,
+            "chapter", $verse.chapter,
+            "verse", $verse.verses[0]
+          ]
+          verseText.add fmt"<sup>[[{crossRefIcon}]({crossRefUrl})]</sup>"
+        verses.add verseText
       if verses.len > 0:
         md.add "#### " & verses.join(", ")
       md.add "\l"
